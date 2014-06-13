@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Web.UI;
 
 namespace FastFasterAsyncWebForms
 {
@@ -17,12 +18,12 @@ namespace FastFasterAsyncWebForms
             var recipeId = 0;
             if (Int32.TryParse(Request.QueryString["ID"], out recipeId) && recipeId != 0)
             {
-                lblMethod.Text = "async/await correct";
+                lblMethod.Text = "PageAsyncTask with Task correct";
                 Task t1 = GetDetailsAsync(recipeId);
                 Task t2 = GetIngredientsAsync(recipeId);
                 Task t3 = GetInstructionsAsync(recipeId);
 
-                await Task.WhenAll(t1, t2, t3);
+                Page.RegisterAsyncTask(new PageAsyncTask(() => Task.WhenAll(t1, t2, t3)));
             }
         }
 
