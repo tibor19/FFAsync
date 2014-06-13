@@ -1,0 +1,49 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="MasterPage.master.cs" Inherits="FastFasterAsyncWebForms.MasterPage" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <title></title>
+    <link href="~/Styles/Style1.css" rel="stylesheet" type="text/css" />
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <div id="container">
+        <div id="masthead">
+            <h1>The spaghetti code files</h1>
+            <h3>Random recipes for failure</h3>
+        </div>
+
+        <div id="navigation">
+            <ul>
+                <li><a href="Default.aspx">Home</a></li>
+                <li><a href="NotImplemented.aspx">Search Recipes</a></li>
+                <li><a href="RandomRecipe.aspx">I feel lucky</a></li>
+                <li><a href="NotImplemented.aspx">Weekly Menu</a></li>
+                <li><a href="NotImplemented.aspx">Top recipes</a></li>
+                <li><a href="ContactUs.aspx">Contact Us</a></li>
+            </ul>
+        </div>
+
+        <form id="form1" runat="server">
+            <div id="content">
+                <asp:ContentPlaceHolder ID="mainContentPlaceHolder" runat="server">
+                </asp:ContentPlaceHolder>
+            </div>
+        </form>
+
+        <div id="footer">
+            <p>
+                <a href="Default.aspx">Home</a> | 
+                <a href="NotImplemented.aspx">Search Recipes</a> |
+    		    <a href="RandomRecipe.aspx">I feel lucky</a> | 
+                <a href="NotImplemented.aspx">Weekly Menu</a> | 
+                <a href="NotImplemented.aspx">Top Recipes</a> |
+		        <a href="ContactUs.aspx">Contact Us</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
