@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Web.UI;
 
 namespace FastFasterAsyncWebForms
 {
@@ -16,7 +17,7 @@ namespace FastFasterAsyncWebForms
             int recipeId = 0;
             if (Int32.TryParse(Request.QueryString["ID"], out recipeId) && recipeId != 0)
             {
-                lblMethod.Text = "AddOnPreRenderCompleteAsync";
+                lblMethod.Text = "RegisterAsyncTask";
                 GetDetails(recipeId);
                 GetIngredients(recipeId);
                 GetInstructions(recipeId);
@@ -40,7 +41,7 @@ namespace FastFasterAsyncWebForms
             cmd.Parameters.AddWithValue("@RecipeID", recipeId);
 
             // for ASP.NET 2.0 applications use delegates instead of lamdba expressions
-            AddOnPreRenderCompleteAsync(
+            Page.RegisterAsyncTask(new PageAsyncTask(
                 (sender, eventArg, callback, state) => cmd.BeginExecuteReader(callback, state), // beginHandler
                 ar => { // endHandler
 
@@ -55,7 +56,11 @@ namespace FastFasterAsyncWebForms
                         }
                     }
                     conn.Close();
-                });
+                },
+                null, // timeoutHandler
+                null, // state
+                true // executeInParallel
+                ));
         }
 
         private void GetIngredients(int recipeId)
@@ -67,7 +72,7 @@ namespace FastFasterAsyncWebForms
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@RecipeID", recipeId);
 
-            AddOnPreRenderCompleteAsync( 
+            Page.RegisterAsyncTask(new PageAsyncTask(
                 (sender, eventArg, callback, state) => cmd.BeginExecuteReader(callback, state), // beginHandler
                 ar => { // endHandler
                     using (SqlDataReader reader = cmd.EndExecuteReader(ar))
@@ -76,7 +81,11 @@ namespace FastFasterAsyncWebForms
                         lstRecipeIngredients.DataBind();
                     }
                     conn.Close();
-                });
+                },
+                null, // timeoutHandler
+                null, // state
+                true // executeInParallel
+                ));
         }
 
         private void GetInstructions(int recipeId)
@@ -88,7 +97,7 @@ namespace FastFasterAsyncWebForms
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@RecipeID", recipeId);
 
-            AddOnPreRenderCompleteAsync(
+            Page.RegisterAsyncTask(new PageAsyncTask(
                 (sender, eventArg, callback, state) => cmd.BeginExecuteReader(callback, state), // beginHandler
                 ar => { // endHandler
                     using (SqlDataReader reader = cmd.EndExecuteReader(ar))
@@ -97,7 +106,11 @@ namespace FastFasterAsyncWebForms
                         lstRecipeInstructions.DataBind();
                     }
                     conn.Close();
-                });
+                },
+                null, // timeoutHandler
+                null, // state
+                true // executeInParallel
+                ));
         }
     }
 }
