@@ -17,10 +17,12 @@ namespace FastFasterAsyncWebForms
             var recipeId = 0;
             if (Int32.TryParse(Request.QueryString["ID"], out recipeId) && recipeId != 0)
             {
-                lblMethod.Text = "async/await";
-                await GetDetailsAsync(recipeId);
-                await GetIngredientsAsync(recipeId);
-                await GetInstructionsAsync(recipeId);
+                lblMethod.Text = "async/await correct";
+                Task t1 = GetDetailsAsync(recipeId);
+                Task t2 = GetIngredientsAsync(recipeId);
+                Task t3 = GetInstructionsAsync(recipeId);
+
+                await Task.WhenAll(t1, t2, t3);
             }
         }
 
