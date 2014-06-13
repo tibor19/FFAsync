@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.UI;
 
@@ -18,12 +19,11 @@ namespace FastFasterAsyncWebForms
             var recipeId = 0;
             if (Int32.TryParse(Request.QueryString["ID"], out recipeId) && recipeId != 0)
             {
-                lblMethod.Text = "PageAsyncTask with Task correct";
-                Task t1 = GetDetailsAsync(recipeId);
-                Task t2 = GetIngredientsAsync(recipeId);
-                Task t3 = GetInstructionsAsync(recipeId);
-
-                Page.RegisterAsyncTask(new PageAsyncTask(() => Task.WhenAll(t1, t2, t3)));
+                lblMethod.Text = "PageAsyncTask with proper Cancellation";
+                // The cancellationToken is cancelled when the AsyncTimeout is reached
+                Page.RegisterAsyncTask(new PageAsyncTask(cancellationToken => GetDetailsAsync(recipeId, cancellationToken)));
+                Page.RegisterAsyncTask(new PageAsyncTask(cancellationToken => GetIngredientsAsync(recipeId, cancellationToken)));
+                Page.RegisterAsyncTask(new PageAsyncTask(cancellationToken => GetInstructionsAsync(recipeId, cancellationToken)));
             }
         }
 
@@ -34,7 +34,7 @@ namespace FastFasterAsyncWebForms
             base.OnPreRenderComplete(e);
         }
 
-        private async Task GetDetailsAsync(int recipeId)
+        private async Task GetDetailsAsync(int recipeId, CancellationToken cancellationToken)
         {
             var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["RecipesDBConnectionString"].ConnectionString);
             conn.Open();
@@ -43,7 +43,7 @@ namespace FastFasterAsyncWebForms
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@RecipeID", recipeId);
 
-            using (var reader = await cmd.ExecuteReaderAsync())
+            using (var reader = await cmd.ExecuteReaderAsync(cancellationToken))
             {
                 if (reader.Read())
                 {
@@ -56,7 +56,7 @@ namespace FastFasterAsyncWebForms
             conn.Close();
         }
 
-        private async Task GetIngredientsAsync(int recipeId)
+        private async Task GetIngredientsAsync(int recipeId, CancellationToken cancellationToken)
         {
             var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["RecipesDBConnectionString"].ConnectionString);
             conn.Open();
@@ -65,7 +65,7 @@ namespace FastFasterAsyncWebForms
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@RecipeID", recipeId);
 
-            using (var reader = await cmd.ExecuteReaderAsync())
+            using (var reader = await cmd.ExecuteReaderAsync(cancellationToken))
             {
                 lstRecipeIngredients.DataSource = reader;
                 lstRecipeIngredients.DataBind();
@@ -73,7 +73,7 @@ namespace FastFasterAsyncWebForms
             conn.Close();
         }
 
-        private async Task GetInstructionsAsync(int recipeId)
+        private async Task GetInstructionsAsync(int recipeId, CancellationToken cancellationToken)
         {
             var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["RecipesDBConnectionString"].ConnectionString);
             conn.Open();
@@ -82,7 +82,7 @@ namespace FastFasterAsyncWebForms
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@RecipeID", recipeId);
 
-            using (var reader = await cmd.ExecuteReaderAsync())
+            using (var reader = await cmd.ExecuteReaderAsync(cancellationToken))
             {
                 lstRecipeInstructions.DataSource = reader;
                 lstRecipeInstructions.DataBind();
